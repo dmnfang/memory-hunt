@@ -7,11 +7,14 @@ function MemorizeScreen({ cells, config, onCover, onBack }) {
   const wrapRef = useRef(null)
   const [rowHeight, setRowHeight] = useState(0)
 
+  const TOPBAR = 72 // topbar height + padding
+
   useLayoutEffect(() => {
     if (!wrapRef.current) return
-    const { height, width } = wrapRef.current.getBoundingClientRect()
+    const { width } = wrapRef.current.getBoundingClientRect()
+    const totalH = window.innerHeight - TOPBAR - 32 // 32 = wrap padding
     const gap = 8
-    const availH = height - gap * (rows - 1)
+    const availH = totalH - gap * (rows - 1)
     const availW = width - gap * (cols - 1)
     const byHeight = Math.floor(availH / rows)
     const byWidth = Math.floor(availW / cols)
