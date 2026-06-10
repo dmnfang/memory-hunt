@@ -31,12 +31,10 @@ function SetupScreen({ onStart }) {
     <div className="setup-screen">
       <div className="setup-topbar">
         <div className="setup-breadcrumb">
-          <a className="bc-home" href="https://dmnfang.github.io">Home</a>
-          <span className="bc-sep">›</span>
-          <a className="bc-mid" href="https://dmnfang.github.io/quiz-hub/">Quiz Hub</a>
-          <span className="bc-sep">›</span>
-          <span className="bc-current">Memory Hunt</span>
-        </div>
+  <a className="bc-home" href="https://dmnfang.github.io">Home</a>
+  <span className="bc-sep">›</span>
+  <span className="bc-current">Memory Hunt</span>
+</div>
         <button className="start-btn" onClick={handleStart}>
           Start
         </button>
