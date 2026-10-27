@@ -256,3 +256,13 @@
   font-size: 20px; font-weight: 600;
   color: var(--text-muted);
 }
+
+.cell-shape {
+  width: 70%; height: 70%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.cell-shape img {
+  width: 100%; height: 100%;
+  object-fit: contain; display: block;
+}

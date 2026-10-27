@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react'
 import confetti from 'canvas-confetti'
 import { generateQuestion } from '../data.js'
 import './GameScreen.css'
@@ -17,19 +17,21 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [sliding, setSliding] = useState('in')
   const [gameOver, setGameOver] = useState(false)
-  const [gameOverReason, setGameOverReason] = useState('') // 'found' | 'timeout'
+  const [gameOverReason, setGameOverReason] = useState('')
   const [revealingWrong, setRevealingWrong] = useState(null)
   const [rowHeight, setRowHeight] = useState(0)
   const [timeLeft, setTimeLeft] = useState(config.startTime)
   const [popups, setPopups] = useState([])
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const timerRef = useRef(null)
   const wrapRef = useRef(null)
 
+  const isShapes = config.labelType === 'shapes'
   const cols = Math.ceil(Math.sqrt(cells.length * 2))
   const rows = Math.ceil(cells.length / cols)
   const BOTTOM_CHROME = 168
 
-  useLayoutEffect(() => {
+  const calcRowHeight = useCallback(() => {
     if (!wrapRef.current) return
     const { width } = wrapRef.current.getBoundingClientRect()
     const totalH = window.innerHeight - BOTTOM_CHROME - 32
@@ -41,7 +43,12 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
     setRowHeight(Math.min(byHeight, byWidth))
   }, [cells.length, cols, rows])
 
-  // Start timer
+  useLayoutEffect(() => {
+    calcRowHeight()
+    window.addEventListener('resize', calcRowHeight)
+    return () => window.removeEventListener('resize', calcRowHeight)
+  }, [calcRowHeight])
+
   useEffect(() => {
     newQuestion(cells)
     timerRef.current = setInterval(() => {
@@ -58,9 +65,21 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
     return () => clearInterval(timerRef.current)
   }, [])
 
-  const addTime = (delta) => {
-    setTimeLeft(t => Math.max(0, t + delta))
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+    } else {
+      document.exitFullscreen()
+    }
   }
+
+  const addTime = (delta) => setTimeLeft(t => Math.max(0, t + delta))
 
   const newQuestion = (currentCells) => {
     const q = generateQuestion(currentCells, config.typeCount)
@@ -77,12 +96,8 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
     const x = rect.left + rect.width / 2
     const y = rect.top + rect.height / 2
     setPopups(prev => [...prev, { id, seconds, x, y, dying: false }])
-    setTimeout(() => {
-      setPopups(prev => prev.map(p => p.id === id ? { ...p, dying: true } : p))
-    }, 600)
-    setTimeout(() => {
-      setPopups(prev => prev.filter(p => p.id !== id))
-    }, 1200)
+    setTimeout(() => setPopups(prev => prev.map(p => p.id === id ? { ...p, dying: true } : p)), 600)
+    setTimeout(() => setPopups(prev => prev.filter(p => p.id !== id)), 1200)
   }
 
   const flippedCount = cells.filter(c => c.flipped).length
@@ -91,13 +106,10 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
   const handleTap = (cellId) => {
     const cell = cells.find(c => c.id === cellId)
     if (!cell || cell.flipped || revealingWrong !== null || gameOver) return
-
     const target = question[currentIdx]
 
     if (cell.image === target) {
-      const newCells = cells.map(c =>
-        c.id === cellId ? { ...c, flipped: true } : c
-      )
+      const newCells = cells.map(c => c.id === cellId ? { ...c, flipped: true } : c)
       onCellsChange(newCells)
       addTime(config.timeGain)
       spawnPopup(cellId, config.timeGain)
@@ -152,9 +164,9 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
                   onClick={() => !cell.flipped && handleTap(cell.id)}
                 >
                   {cell.flipped || isRevealing ? (
-                    <div className="cell-image">
-                      <img src={cell.image} alt="" />
-                    </div>
+                    <div className="cell-image"><img src={cell.image} alt="" /></div>
+                  ) : isShapes ? (
+                    <div className="cell-shape"><img src={cell.shapesvg} alt="" /></div>
                   ) : (
                     <div className="cell-label">{cell.label}</div>
                   )}
@@ -165,7 +177,6 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
         )}
       </div>
 
-      {/* Floating time popups */}
       {popups.map(p => (
         <div
           key={p.id}
@@ -211,6 +222,9 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
         <div className="found-counter">
           {flippedCount} / {cells.length} found
         </div>
+        <button className="ctrl-btn" onClick={toggleFullscreen}>
+          {isFullscreen ? 'Exit Full' : 'Fullscreen'}
+        </button>
       </div>
     </div>
   )
