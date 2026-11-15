@@ -16,82 +16,46 @@ export const RANGES = {
   shapes:    [{ id: '8',  label: '8 Shapes',  count: 8  }, { id: '16', label: '16 Shapes', count: 16 }, { id: '24', label: '24 Shapes', count: 24 }],
 }
 
-export const CATEGORIES = [
-  { id: 'fruits',     label: 'Fruits',      emoji: '🍎' },
-  { id: 'vegetables', label: 'Vegetables',  emoji: '🥕' },
-  { id: 'animals',    label: 'Animals',     emoji: '🐶' },
-  { id: 'sports',     label: 'Sports',      emoji: '⚽' },
-  { id: 'colors',     label: 'Colors',      emoji: '🎨' },
+// Images are auto-discovered from src/assets/images/<category>/*.{png,webp,jpg,jpeg}
+// Add, remove or rename files freely — no lists to maintain.
+const imageFiles = import.meta.glob('./assets/images/*/*.{png,webp,jpg,jpeg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+
+export const IMAGES = {}
+for (const [path, url] of Object.entries(imageFiles)) {
+  const category = path.split('/').slice(-2)[0]
+  ;(IMAGES[category] ||= []).push(url)
+}
+
+const ALL_CATEGORIES = [
+  { id: 'fruits',     label: 'Fruits' },
+  { id: 'vegetables', label: 'Vegetables' },
+  { id: 'animals',    label: 'Animals' },
+  { id: 'sports',     label: 'Sports' },
+  { id: 'colors',     label: 'Colors' },
 ]
 
-export const IMAGE_TYPE_OPTIONS = [2, 3, 4, 5]
+// only offer categories that actually have images
+export const CATEGORIES = ALL_CATEGORIES.filter(c => IMAGES[c.id]?.length)
 
-export const IMAGES = {
-  fruits:     [
-    '/memory-hunt/images/fruits/apple.png',
-    '/memory-hunt/images/fruits/orange.png',
-    '/memory-hunt/images/fruits/peach.png',
-    '/memory-hunt/images/fruits/strawberry.png',
-    '/memory-hunt/images/fruits/grapes.png',
-    '/memory-hunt/images/fruits/lemon.png',
-    '/memory-hunt/images/fruits/banana.png',
-    '/memory-hunt/images/fruits/watermelon.png',
-  ],
-  vegetables: [
-    '/memory-hunt/images/vegetables/carrot.png',
-    '/memory-hunt/images/vegetables/tomato.png',
-    '/memory-hunt/images/vegetables/corn.png',
-    '/memory-hunt/images/vegetables/potato.png',
-    '/memory-hunt/images/vegetables/cucumber.png',
-    '/memory-hunt/images/vegetables/onion.png',
-    '/memory-hunt/images/vegetables/broccoli.png',
-    '/memory-hunt/images/vegetables/green-pepper.png',
-  ],
-  animals: [
-    '/memory-hunt/images/animals/cat.png',
-    '/memory-hunt/images/animals/dog.png',
-    '/memory-hunt/images/animals/rabbit.png',
-    '/memory-hunt/images/animals/bear.png',
-    '/memory-hunt/images/animals/elephant.png',
-    '/memory-hunt/images/animals/lion.png',
-    '/memory-hunt/images/animals/panda.png',
-    '/memory-hunt/images/animals/fox.png',
-    '/memory-hunt/images/animals/penguin.png',
-  ],
-  sports: [
-    '/memory-hunt/images/sports/soccer.png',
-    '/memory-hunt/images/sports/baseball.png',
-    '/memory-hunt/images/sports/basketball.png',
-    '/memory-hunt/images/sports/tennis.png',
-    '/memory-hunt/images/sports/volleyball.png',
-    '/memory-hunt/images/sports/badminton.png',
-    '/memory-hunt/images/sports/table-tennis.png',
-    '/memory-hunt/images/sports/swimming.png',
-  ],
-  colors: [
-    '/memory-hunt/images/colors/red.png',
-    '/memory-hunt/images/colors/yellow.png',
-    '/memory-hunt/images/colors/pink.png',
-    '/memory-hunt/images/colors/green.png',
-    '/memory-hunt/images/colors/purple.png',
-    '/memory-hunt/images/colors/orange.png',
-    '/memory-hunt/images/colors/blue.png',
-    '/memory-hunt/images/colors/black.png',
-  ],
-}
+export const IMAGE_TYPE_OPTIONS = [2, 3, 4, 5]
 
 // --- Shapes ---
 
 const SHAPE_NAMES = ['circle', 'diamond', 'square', 'rectangle', 'cross', 'heart', 'star', 'triangle']
 
+// CLR palette 500s (SVG data URIs can't read CSS variables)
 const SHAPE_COLORS = {
-  red:    '#E8443A',
-  yellow: '#F5C842',
-  pink:   '#F4896B',
-  green:  '#4AA875',
-  purple: '#9B7FD4',
-  orange: '#F5923A',
-  blue:   '#4A8BAD',
+  red:    '#E2685D', // coral-500
+  yellow: '#E4B62E', // sun-500
+  pink:   '#DD6B9C', // bubblegum-500
+  green:  '#7CBF57', // leaf-500
+  purple: '#9B6BC7', // grape-500
+  orange: '#E46A1A', // orange-500
+  blue:   '#4FA3DE', // sky-500
 }
 
 function makeShapeSVG(shape, color) {

@@ -1,7 +1,11 @@
-import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import confetti from 'canvas-confetti'
 import { generateQuestion } from '../data.js'
-import './GameScreen.css'
+
+// CLR palette 500s (confetti can't read CSS variables)
+const CONFETTI_ALL  = ['#7CBF57', '#E4B62E', '#9B6BC7', '#E9884F', '#4FA3DE', '#E2685D']
+const CONFETTI_LEFT  = ['#7CBF57', '#E4B62E', '#9B6BC7']
+const CONFETTI_RIGHT = ['#E9884F', '#4FA3DE', '#E2685D']
 
 let popupId = 0
 
@@ -19,36 +23,14 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
   const [gameOver, setGameOver] = useState(false)
   const [gameOverReason, setGameOverReason] = useState('')
   const [revealingWrong, setRevealingWrong] = useState(null)
-  const [rowHeight, setRowHeight] = useState(0)
   const [timeLeft, setTimeLeft] = useState(config.startTime)
   const [popups, setPopups] = useState([])
   const [isFullscreen, setIsFullscreen] = useState(false)
   const timerRef = useRef(null)
-  const wrapRef = useRef(null)
 
   const isShapes = config.labelType === 'shapes'
   const cols = Math.ceil(Math.sqrt(cells.length * 2))
   const rows = Math.ceil(cells.length / cols)
-  const BOTTOM_CHROME = 168
-
-  const calcRowHeight = useCallback(() => {
-    if (!wrapRef.current) return
-    const { width } = wrapRef.current.getBoundingClientRect()
-    const totalH = window.innerHeight - BOTTOM_CHROME - 32
-    const gap = 8
-    const availH = totalH - gap * (rows - 1)
-    const availW = width - gap * (cols - 1)
-    const byHeight = Math.floor(availH / rows)
-    const byWidth = Math.floor(availW / cols)
-    setRowHeight(Math.min(byHeight, byWidth))
-  }, [cells.length, cols, rows])
-
-  useLayoutEffect(() => {
-    calcRowHeight()
-    window.addEventListener('resize', calcRowHeight)
-    return () => window.removeEventListener('resize', calcRowHeight)
-  }, [calcRowHeight])
-
   useEffect(() => {
     newQuestion(cells)
     timerRef.current = setInterval(() => {
@@ -122,10 +104,10 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
           setGameOver(true)
           setGameOverReason('found')
           setTimeout(() => {
-            confetti({ particleCount: 300, spread: 160, origin: { y: 0.5 }, scalar: 2, shapes: ['square'], colors: ['#4AA875','#F5C842','#9B7FD4','#F4896B','#4A8BAD','#E8443A'] })
+            confetti({ particleCount: 300, spread: 160, origin: { y: 0.5 }, scalar: 2, shapes: ['square'], colors: CONFETTI_ALL })
             setTimeout(() => {
-              confetti({ particleCount: 200, spread: 180, origin: { x: 0.1, y: 0.6 }, scalar: 2, shapes: ['square'], colors: ['#4AA875','#F5C842','#9B7FD4'] })
-              confetti({ particleCount: 200, spread: 180, origin: { x: 0.9, y: 0.6 }, scalar: 2, shapes: ['square'], colors: ['#F4896B','#4A8BAD','#E8443A'] })
+              confetti({ particleCount: 200, spread: 180, origin: { x: 0.1, y: 0.6 }, scalar: 2, shapes: ['square'], colors: CONFETTI_LEFT })
+              confetti({ particleCount: 200, spread: 180, origin: { x: 0.9, y: 0.6 }, scalar: 2, shapes: ['square'], colors: CONFETTI_RIGHT })
             }, 400)
           }, 200)
         } else {
@@ -144,37 +126,51 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
   }
 
   return (
-    <div className="game-screen">
-      <div className="game-grid-wrap" ref={wrapRef}>
-        {rowHeight > 0 && (
-          <div
-            className="game-grid"
-            style={{
-              gridTemplateColumns: `repeat(${cols}, 1fr)`,
-              gridAutoRows: `${rowHeight}px`,
-            }}
-          >
-            {cells.map(cell => {
-              const isRevealing = revealingWrong === cell.id
-              return (
-                <div
-                  key={cell.id}
-                  id={`cell-${cell.id}`}
-                  className={`game-cell ${cell.flipped ? 'flipped' : ''} ${isRevealing ? 'revealing-wrong' : ''}`}
-                  onClick={() => !cell.flipped && handleTap(cell.id)}
-                >
-                  {cell.flipped || isRevealing ? (
-                    <div className="cell-image"><img src={cell.image} alt="" /></div>
-                  ) : isShapes ? (
-                    <div className="cell-shape"><img src={cell.shapesvg} alt="" /></div>
-                  ) : (
-                    <div className="cell-label">{cell.label}</div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
+    <div className="mode-screen">
+      <div className="mode-topbar">
+        <button className="nav-btn" onClick={onBack}>Setup</button>
+        <div className="topbar-title">{flippedCount} / {cells.length} found</div>
+        <button className="nav-btn" onClick={toggleFullscreen}>
+          {isFullscreen ? 'Exit Full' : 'Fullscreen'}
+        </button>
+      </div>
+
+      <div className="grid-stage">
+        <div
+          className="tile-grid"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+          }}
+        >
+          {cells.map(cell => {
+            const isRevealing = revealingWrong === cell.id
+            const covered = !cell.flipped && !isRevealing
+            const cls = [
+              'tile',
+              covered && 'covered',
+              covered && isShapes && 'is-shape',
+              cell.flipped && 'found',
+              isRevealing && 'wrong shake',
+            ].filter(Boolean).join(' ')
+            return (
+              <div
+                key={cell.id}
+                id={`cell-${cell.id}`}
+                className={cls}
+                onClick={() => !cell.flipped && handleTap(cell.id)}
+              >
+                {!covered ? (
+                  <div className="tile-img"><img src={cell.image} alt="" /></div>
+                ) : isShapes ? (
+                  <div className="tile-shape"><img src={cell.shapesvg} alt="" /></div>
+                ) : (
+                  <div className="tile-label">{cell.label}</div>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {popups.map(p => (
@@ -187,44 +183,36 @@ function GameScreen({ cells, onCellsChange, config, onBack }) {
         </div>
       ))}
 
-      {!gameOver && question.length > 0 && (
-        <div key={question.join(',')} className={`question-bar ${sliding}`}>
-          <div className="question-items">
+      <div className="bottom-slot">
+        {!gameOver && question.length > 0 && (
+          <div key={question.join(',')} className={`question-row ${sliding}`}>
             {question.map((img, i) => (
               <div
                 key={i}
                 className={`question-item ${i === currentIdx ? 'active' : i < currentIdx ? 'done' : ''}`}
               >
                 <img className="question-img" src={img} alt="" />
-                {i < currentIdx && <span className="check">✓</span>}
+                {i < currentIdx && <span className="question-check">✓</span>}
               </div>
             ))}
           </div>
-          <div className={`timer-display ${isLow ? 'low' : ''}`}>
-            <div className="score-label">Time</div>
-            <div className="score-value">{fmt(timeLeft)}</div>
-          </div>
-        </div>
-      )}
+        )}
 
-      {gameOver && (
-        <div className={`game-over-bar ${gameOverReason === 'timeout' ? 'timeout' : ''}`}>
-          <span>{gameOverReason === 'found' ? 'All found!' : "Time's up!"}</span>
-          <div className="final-score">
-            <div className="score-label">{flippedCount} / {cells.length} found</div>
-            <div className="score-value">{fmt(timeLeft)} left</div>
+        {!gameOver && (
+          <div className="question-bar">
+            <div className={`timer ${isLow ? 'low' : ''}`}>{fmt(timeLeft)}</div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="game-controls">
-        <button className="ctrl-btn" onClick={onBack}>Setup</button>
-        <div className="found-counter">
-          {flippedCount} / {cells.length} found
-        </div>
-        <button className="ctrl-btn" onClick={toggleFullscreen}>
-          {isFullscreen ? 'Exit Full' : 'Fullscreen'}
-        </button>
+        {gameOver && (
+          <div className={`result-bar ${gameOverReason === 'timeout' ? 'timeout' : ''}`}>
+            <span className="result-title">{gameOverReason === 'found' ? 'All found!' : "Time's up!"}</span>
+            <div className="stat">
+              <div className="stat-label">{flippedCount} / {cells.length} found</div>
+              <div className="stat-value">{fmt(timeLeft)} left</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

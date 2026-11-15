@@ -1,0 +1,715 @@
+/* =========================================================
+   Memory Hunt — single stylesheet, CLR design system
+   1. CLR tokens + reset  (copied verbatim from cardbox-app clr.css)
+   2. Memory Hunt accent
+   3. Shared pieces       (same class names/values as CLR)
+   4. Setup
+   5. Memorize + Game
+   ========================================================= */
+
+/* ============================================
+   TOKENS — matched to v1's real values
+   ============================================ */
+:root {
+  /* ---- Raw palette ---------------------------------------------------- */
+  --leaf-50:  #E8F5DE;
+  --leaf-100: #D3ECC2;
+  --leaf-300: #A8D986;
+  --leaf-500: #7CBF57;
+  --leaf-700: #4F8F35;
+  --leaf-900: #2F5920;
+
+  --coral-50:  #FBE4E2;
+  --coral-100: #F7CBC7;
+  --coral-300: #EF9891;
+  --coral-500: #E2685D;
+  --coral-700: #B84B42;
+  --coral-900: #7A2F29;
+
+  --sky-50:  #E1F0FB;
+  --sky-100: #C3E1F7;
+  --sky-300: #8AC3EE;
+  --sky-500: #4FA3DE;
+  --sky-700: #337CAE;
+  --sky-900: #1F4E6E;
+
+  --peach-50:  #FCE9DC;
+  --peach-100: #FAD3B9;
+  --peach-300: #F3AC7D;
+  --peach-500: #E9884F;
+  --peach-700: #BC6533;
+  --peach-900: #7A4020;
+
+  --grape-50:  #EEE3F7;
+  --grape-100: #DCC7EF;
+  --grape-300: #BB94DE;
+  --grape-500: #9B6BC7;
+  --grape-700: #764A9C;
+  --grape-900: #4A2C63;
+
+  --sun-50:  #FBF0D2;
+  --sun-100: #F8E4A8;
+  --sun-300: #F0CB5C;
+  --sun-500: #E4B62E;
+  --sun-700: #B08A18;
+  --sun-900: #6E560F;
+
+  --bubblegum-50:  #FBE3EE;
+  --bubblegum-100: #F7C7DE;
+  --bubblegum-300: #EE94BE;
+  --bubblegum-500: #DD6B9C;
+  --bubblegum-700: #B04A78;
+  --bubblegum-900: #712D4C;
+
+  --mint-50:  #E1F7F0;
+  --mint-100: #C3EFE0;
+  --mint-300: #86DEC0;
+  --mint-500: #4DC2A0;
+  --mint-700: #339678;
+  --mint-900: #1F5F4C;
+
+  --sand-0:   #FFFFFF;
+  --sand-50:  #F7F2E9;
+  --sand-100: #EDE6D4;
+  --sand-300: #D1C5A9;
+  --sand-500: #A79976;
+  --sand-700: #6F654D;
+  --sand-900: #353127;
+
+  --slate-0:   #FFFFFF;
+  --slate-50:  #EEEFF1;
+  --slate-100: #DDDFE3;
+  --slate-300: #B1B5BE;
+  --slate-500: #7F8594;
+  --slate-700: #535865;
+  --slate-900: #22242B;
+
+  --orange-50:  #FBE7D6;
+  --orange-100: #F8D0AE;
+  --orange-300: #F3A263;
+  --orange-500: #E46A1A;
+  --orange-700: #B84F0E;
+  --orange-900: #6E2F0B;
+
+  --honey-50:  #F8E9C8;
+  --honey-100: #F5DCA0;
+  --honey-300: #EEC45A;
+  --honey-500: #9E6D12;
+  --honey-700: #7C520E;
+  --honey-900: #5A3D0A;
+
+  --lime-50:  #EEF8DC;
+  --lime-100: #DFF2C0;
+  --lime-300: #BDEB84;
+  --lime-500: #9BDF4F;
+  --lime-700: #649E24;
+  --lime-900: #3E6718;
+
+  --indigo-50:  #E9EAFB;
+  --indigo-100: #D4D5F6;
+  --indigo-300: #A1A4EB;
+  --indigo-500: #6468E6;
+  --indigo-700: #484CC0;
+  --indigo-900: #2B2E78;
+
+  /* ---- Cardbox semantic tokens (mapped onto the palette above) -------- */
+
+  /* Surface — warm, from Sand */
+  --surface-base:    var(--sand-50);
+  --surface-panel:   var(--sand-100);
+  --surface-card:    var(--sand-0);
+  --surface-inset:   var(--sand-50);
+
+  /* Text — cool, from Slate */
+  --text-primary:    var(--sand-900);
+  --text-secondary:  var(--sand-700);
+  --text-muted:      var(--sand-500);
+  --text-disabled:   var(--sand-300);
+  --text-inverse:    var(--sand-0);
+
+  /* Stroke — kept warm (Sand), matching Cardbox's cohesive look */
+  --stroke-default:  var(--sand-300);
+  --stroke-medium:   var(--sand-500);
+  --stroke-strong:   var(--sand-700);
+  --stroke-selected: var(--grape-500);
+
+  /* Interactive */
+  --green:                 var(--grape-500);
+  --interactive-primary:   var(--grape-500);
+  --interactive-secondary: var(--sun-500);
+  --tab-active:            var(--grape-500);
+  --tab-inactive:          var(--sand-700);
+  --interactive-disabled:  var(--sand-300);
+
+  /* Mode */
+  --flash:          var(--sun-500);
+  --flash-subtle:   var(--sun-50);
+  --reveal:         var(--sky-500);
+  --reveal-subtle:  var(--sky-50);
+  --target:         var(--coral-500);
+  --target-subtle:  var(--coral-50);
+  --vanish:         var(--leaf-500);
+  --vanish-subtle:  var(--leaf-50);
+  --roll:           var(--grape-500);
+  --roll-subtle:    var(--grape-50);
+  --flip:           var(--peach-500);
+  --flip-subtle:    var(--peach-50);
+  --spell:          var(--mint-500);
+  --spell-subtle:   var(--mint-50);
+  --call:           var(--bubblegum-500);
+  --call-subtle:    var(--bubblegum-50);
+  --beat:           var(--indigo-500);
+  --beat-subtle:    var(--indigo-50);
+  --bet:            var(--orange-500);
+  --bet-subtle:     var(--orange-50);
+
+  /* Feedback */
+  --success:        var(--leaf-500);
+  --success-subtle: var(--leaf-50);
+  --error:          var(--coral-500);
+  --error-subtle:   var(--coral-50);
+  --warning:        var(--sun-500);
+  --warning-subtle: var(--sun-50);
+  --info:           var(--sky-500);
+  --info-subtle:    var(--sky-50);
+
+  --font-display: 'Fredoka', sans-serif;
+  --font-ui:      'Nunito', sans-serif;
+  --font-card:    'Lexend', 'Nunito', sans-serif;
+
+  --card-image-ratio: 17;
+  --card-text-ratio:  3;
+
+  --r-lg:   16px;
+  --r-md:   12px;
+  --r-pill: 9999px;
+}
+
+/* ============================================
+   RESET
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-h, 100dvh);
+}
+
+html, body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--surface-base);
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+}
+
+button {
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+button:active {
+  opacity: 0.75;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ============================================
+   MEMORY HUNT ACCENT — change these two lines to re-colour the whole app
+   ============================================ */
+:root {
+  --accent:        var(--mint-500);
+  --accent-subtle: var(--mint-50);
+  --accent-strong: var(--mint-700);
+}
+
+/* ============================================
+   SHARED PIECES (same names/values as CLR)
+   ============================================ */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 40px;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nav-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  background: var(--surface-panel);
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-btn:active {
+  opacity: 0.7;
+  transform: scale(0.94);
+}
+
+.topbar-action {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--r-md);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar-action-accent { background: var(--accent); }
+
+.launch-btn {
+  height: 56px;
+  width: 100%;
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.settings-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.settings-hint {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--error);
+}
+
+.toggle-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toggle-pill {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--surface-inset);
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-pill.active {
+  background: var(--tab-active);
+  color: #fff;
+}
+
+.mode-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  height: 100%;
+}
+
+.mode-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.shake { animation: shake 0.4s ease; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+
+/* ============================================
+   SETUP
+   ============================================ */
+.setup-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  height: 100%;
+}
+
+.setup-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+}
+
+.setup-panel {
+  min-width: 0;
+  background: var(--surface-card);
+  border: 2px solid var(--stroke-default);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.setup-panel-content { flex: 2; }
+.setup-panel-time    { flex: 1; }
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.settings-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.settings-scroll::-webkit-scrollbar { display: none; }
+
+/* ============================================
+   MEMORIZE + GAME — shared grid
+   ============================================ */
+.grid-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+.tile-grid {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.tile {
+  background: var(--surface-card);
+  border: 2px solid var(--stroke-default);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+
+.tile-img {
+  width: 85%;
+  height: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-shape {
+  width: 70%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-label {
+  font-family: var(--font-card);
+  font-size: min(56cqh, 28cqw);
+  font-weight: 700;
+  color: var(--text-inverse);
+  line-height: 1;
+}
+
+/* ============================================
+   GAME — tile states
+   ============================================ */
+.tile.covered {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.tile.covered:active { transform: scale(0.94); }
+
+.tile.covered.is-shape {
+  background: var(--surface-card);
+  border-color: var(--stroke-default);
+}
+
+.tile.found {
+  border-color: var(--success);
+  border-width: 3px;
+}
+
+.tile.wrong {
+  border-color: var(--error);
+  border-width: 3px;
+}
+
+/* time popups */
+.score-popup {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 800;
+  pointer-events: none;
+  z-index: 100;
+  -webkit-text-stroke: 3px #fff;
+  paint-order: stroke fill;
+  animation: popupRise 0.6s ease-out forwards;
+}
+
+.score-popup.positive { color: var(--success); }
+.score-popup.negative { color: var(--error); }
+.score-popup.dying    { animation: popupFade 0.6s ease-in forwards; }
+
+@keyframes popupRise {
+  from { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+  to   { transform: translate(-50%, -120%) scale(1); opacity: 1; }
+}
+
+@keyframes popupFade {
+  from { transform: translate(-50%, -120%) scale(1); opacity: 1; }
+  to   { transform: translate(-50%, -180%) scale(0.8); opacity: 0; }
+}
+
+/* ============================================
+   GAME — bottom bar (question / result)
+   ============================================ */
+/* bottom row: question items on the left (no container), timer hugging on the right */
+.bottom-slot {
+  flex-shrink: 0;
+  height: 88px;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.question-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.question-row.in  { animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.question-row.out { animation: slideOut 0.35s ease-in forwards; }
+
+@keyframes slideIn {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(24px); opacity: 0; }
+}
+
+.question-item {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-lg);
+  border: 3px solid var(--stroke-default);
+  background: var(--surface-card);
+  transition: border-color 0.15s;
+}
+
+.question-item.active { border-color: var(--accent); }
+
+.question-item.done {
+  border-color: var(--success);
+  background: var(--success-subtle);
+  opacity: 0.6;
+}
+
+.question-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.question-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: var(--surface-panel);
+  border: 2px solid var(--stroke-default);
+  border-radius: var(--r-lg);
+  padding: 0 24px;
+  container-type: size;
+}
+
+/* the time fills the bar: sized from the bar's own height (and width, for tight fits) */
+.timer {
+  font-family: var(--font-display);
+  font-size: min(72cqh, 32cqw);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.timer.low {
+  color: var(--error);
+  animation: timerPulse 0.5s ease-in-out infinite alternate;
+}
+
+.question-check {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+@keyframes timerPulse {
+  from { opacity: 1; }
+  to   { opacity: 0.4; }
+}
+
+.result-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-radius: var(--r-lg);
+  flex: 1;
+  border: 2px solid var(--success);
+  background: var(--success-subtle);
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.result-bar.timeout {
+  border-color: var(--error);
+  background: var(--error-subtle);
+}
+
+.result-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.result-bar .stat-value { font-size: 28px; }

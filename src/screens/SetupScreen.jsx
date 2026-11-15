@@ -1,15 +1,32 @@
 import { useState } from 'react'
 import { LABEL_TYPES, RANGES, CATEGORIES } from '../data.js'
-import './SetupScreen.css'
 
 const TIMER_OPTIONS = [
-  { id: '120', label: '2 min', seconds: 120 },
-  { id: '180', label: '3 min', seconds: 180 },
-  { id: '300', label: '5 min', seconds: 300 },
+  { seconds: 120, label: '2 min' },
+  { seconds: 180, label: '3 min' },
+  { seconds: 300, label: '5 min' },
 ]
 
+const IMAGE_TYPE_OPTIONS = [2, 3, 4, 5]
 const TIME_GAIN_OPTIONS = [3, 5, 10]
 const TIME_LOSS_OPTIONS = [3, 5, 10]
+
+function Block({ label, children }) {
+  return (
+    <div className="settings-block">
+      <div className="settings-label">{label}</div>
+      <div className="toggle-group">{children}</div>
+    </div>
+  )
+}
+
+function Pill({ active, onClick, children }) {
+  return (
+    <button className={`toggle-pill ${active ? 'active' : ''}`} onClick={onClick}>
+      {children}
+    </button>
+  )
+}
 
 function SetupScreen({ onStart }) {
   const [labelType, setLabelType] = useState('numbers')
@@ -44,140 +61,77 @@ function SetupScreen({ onStart }) {
 
   return (
     <div className="setup-screen">
-      <div className="setup-topbar">
-        <div className="setup-breadcrumb">
-          <a className="bc-home" href="https://dmnfang.github.io">Home</a>
-          <span className="bc-sep">›</span>
-          <span className="bc-current">Memory Hunt</span>
-        </div>
-        <button className="start-btn" onClick={handleStart}>
-          Start
-        </button>
+      <div className="app-header">
+        <h1 className="brand-name">Memory Hunt</h1>
+        <a className="nav-btn" href="https://dmnfang.github.io">Home</a>
       </div>
 
       <div className="setup-body">
-        <div className="setup-section">
-          <div className="section-label">Label Type</div>
-          <div className="chip-row">
-            {LABEL_TYPES.map(t => (
-              <button
-                key={t.id}
-                className={`chip ${labelType === t.id ? 'active' : ''}`}
-                onClick={() => handleLabelType(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+        <div className="setup-panel setup-panel-content">
+          <div className="panel-title">Content Settings</div>
+          <div className="settings-scroll">
+            <Block label="Label Type">
+              {LABEL_TYPES.map(t => (
+                <Pill key={t.id} active={labelType === t.id} onClick={() => handleLabelType(t.id)}>
+                  {t.label}
+                </Pill>
+              ))}
+            </Block>
+
+            <Block label="Range">
+              {ranges.map(r => (
+                <Pill key={r.id} active={rangeId === r.id} onClick={() => setRangeId(r.id)}>
+                  {r.label}
+                </Pill>
+              ))}
+            </Block>
+
+            <Block label="Tile Order">
+              <Pill active={ordered} onClick={() => setOrdered(true)}>In Order</Pill>
+              <Pill active={!ordered} onClick={() => setOrdered(false)}>Shuffled</Pill>
+            </Block>
+
+            <Block label="Image Types">
+              {IMAGE_TYPE_OPTIONS.map(n => (
+                <Pill key={n} active={typeCount === n} onClick={() => setTypeCount(n)}>{n}</Pill>
+              ))}
+            </Block>
+
+            <Block label="Image Category">
+              {CATEGORIES.map(cat => (
+                <Pill key={cat.id} active={category === cat.id} onClick={() => setCategory(cat.id)}>
+                  {cat.label}
+                </Pill>
+              ))}
+            </Block>
           </div>
         </div>
 
-        <div className="setup-section">
-          <div className="section-label">Range</div>
-          <div className="chip-row">
-            {ranges.map(r => (
-              <button
-                key={r.id}
-                className={`chip ${rangeId === r.id ? 'active' : ''}`}
-                onClick={() => setRangeId(r.id)}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <div className="setup-panel setup-panel-time">
+          <div className="panel-title">Time Settings</div>
+          <div className="settings-scroll">
+            <Block label="Starting Time">
+              {TIMER_OPTIONS.map(t => (
+                <Pill key={t.seconds} active={startTime === t.seconds} onClick={() => setStartTime(t.seconds)}>
+                  {t.label}
+                </Pill>
+              ))}
+            </Block>
 
-        <div className="setup-section">
-          <div className="section-label">Tile Order</div>
-          <div className="chip-row">
-            <button
-              className={`chip ${ordered ? 'active' : ''}`}
-              onClick={() => setOrdered(true)}
-            >
-              In Order
-            </button>
-            <button
-              className={`chip ${!ordered ? 'active' : ''}`}
-              onClick={() => setOrdered(false)}
-            >
-              Shuffled
-            </button>
-          </div>
-        </div>
+            <Block label="Time Gained (correct)">
+              {TIME_GAIN_OPTIONS.map(n => (
+                <Pill key={n} active={timeGain === n} onClick={() => setTimeGain(n)}>+{n}s</Pill>
+              ))}
+            </Block>
 
-        <div className="setup-section">
-          <div className="section-label">Image Types</div>
-          <div className="chip-row">
-            {[2, 3, 4, 5].map(n => (
-              <button
-                key={n}
-                className={`chip ${typeCount === n ? 'active' : ''}`}
-                onClick={() => setTypeCount(n)}
-              >
-                {n}
-              </button>
-            ))}
+            <Block label="Time Lost (wrong)">
+              {TIME_LOSS_OPTIONS.map(n => (
+                <Pill key={n} active={timeLoss === n} onClick={() => setTimeLoss(n)}>-{n}s</Pill>
+              ))}
+            </Block>
           </div>
-        </div>
 
-        <div className="setup-section">
-          <div className="section-label">Image Category</div>
-          <div className="category-grid">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat.id}
-                className={`category-btn ${category === cat.id ? 'active' : ''}`}
-                onClick={() => setCategory(cat.id)}
-              >
-                <span className="cat-emoji">{cat.emoji}</span>
-                <span className="cat-label">{cat.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="setup-section">
-          <div className="section-label">Starting Time</div>
-          <div className="chip-row">
-            {TIMER_OPTIONS.map(t => (
-              <button
-                key={t.id}
-                className={`chip ${startTime === t.seconds ? 'active' : ''}`}
-                onClick={() => setStartTime(t.seconds)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="setup-section">
-          <div className="section-label">Time Gained (correct)</div>
-          <div className="chip-row">
-            {TIME_GAIN_OPTIONS.map(n => (
-              <button
-                key={n}
-                className={`chip ${timeGain === n ? 'active' : ''}`}
-                onClick={() => setTimeGain(n)}
-              >
-                +{n}s
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="setup-section">
-          <div className="section-label">Time Lost (wrong)</div>
-          <div className="chip-row">
-            {TIME_LOSS_OPTIONS.map(n => (
-              <button
-                key={n}
-                className={`chip ${timeLoss === n ? 'active' : ''}`}
-                onClick={() => setTimeLoss(n)}
-              >
-                -{n}s
-              </button>
-            ))}
-          </div>
+          <button className="launch-btn" onClick={handleStart}>Start</button>
         </div>
       </div>
     </div>
